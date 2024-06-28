@@ -37,7 +37,8 @@ function HomePage() {
       ---
 
       - Only answer in spanish
-      - Output should be one line with the following format: [position / role] en [company]. [experience required].
+      - Output should be one line with the following format: [seniority] [position / role] en [company]. [experience required].
+      - If it has location requirements, add it at the beginning, like: [location]. [seniority] [position / role] en [company]. [experience required].
       - Not talking in first or third person.
       - Less than 260 characters.
       - Don't include website or links
