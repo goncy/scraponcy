@@ -5,7 +5,6 @@ import {generateText} from "ai";
 import {ollama} from "ollama-ai-provider";
 import {useActionState} from "react";
 
-import Tweet from "./tweet";
 import {extractSummaryFromLinkedinJob, extractSummaryFromLinkedinPost} from "./actions";
 
 import {Button} from "@/components/ui/button";
@@ -22,27 +21,32 @@ function HomePage() {
     for (const link of links) {
       let body: string;
 
-      if (link.includes("linkedin.com/jobs")) {
+      if (link.match(/linkedin.com\/jobs/)) {
         body = await extractSummaryFromLinkedinJob(link);
-      } else if (link.includes("linkedin.com/feed")) {
+      } else if (link.match(/linkedin.com\/feed|linkedin.com\/post/)) {
         body = await extractSummaryFromLinkedinPost(link);
       }
 
       const {text: summary} = await generateText({
         model: ollama("llama3"),
-        prompt: `You are a bot that generates tweets from job descriptions.
-      Based on the following job description:
+        prompt: `You are an assistant that replies with tweets from job descriptions.
+
+      - Only answer in spanish
+      - Output should be one line per position with the following format and nothing else: [seniority] [role] en [company]. [experience required].
+      - If multiple roles or positions are mentioned, output one line per role or position.
+      - If it has location requirements, add it at the beginning of the format, like: [location]. [seniority] [role] en [company]. [experience required].
+      - Not talking in first or third person.
+      - If none of the tokens could be retrieved, output "🚨🚨🚨".
+      - Less than 260 characters.
+      - Don't include emojis, inspirational quotes, hashtags, urls or links.
+      - Don't include information not related to role, company or experience required.
+      - Always follow the specified format.
+      - Only return the answer, no feedback from the prompt or extra information.
+
+      This is the job description:
       ---
       ${body!}
       ---
-
-      - Only answer in spanish
-      - Output should be one line with the following format: [seniority] [position / role] en [company]. [experience required].
-      - If it has location requirements, add it at the beginning, like: [location]. [seniority] [position / role] en [company]. [experience required].
-      - Not talking in first or third person.
-      - Less than 260 characters.
-      - Don't include website or links
-      - Don't include information not related to role, company or experience required.
       `,
       });
 
@@ -62,7 +66,14 @@ function HomePage() {
       </form>
       <article className="grid gap-4">
         {tweets.map((tweet) => (
-          <Tweet key={tweet}>{tweet}</Tweet>
+          <button
+            key={tweet}
+            className="whitespace-pre-wrap rounded-md border p-4 text-left transition-colors active:bg-emerald-400/50"
+            type="button"
+            onClick={() => navigator.clipboard.writeText(tweet as string)}
+          >
+            {tweet}
+          </button>
         ))}
       </article>
     </section>
