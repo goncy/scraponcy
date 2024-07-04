@@ -21,6 +21,43 @@ function HomePage() {
     const links = text.split("\n");
     const tweets = [];
 
+    const {text: intro} = await generateText({
+      model: ollama("llama3"),
+      prompt: `Generate a slightly clickbity tweet (absolute max 280 characters) implying it's "Thursday of Junior / Trainee positions". Add a disclaimer that these positions are not mine and that I don't know the companies or person sharing the position. Include max 2 emojis. Answer should be in ES-ar. Include just the tweet, omit any "Here is the tweet" or reply. Here are some examples:
+      ---
+      Jueves de 🤝 posiciones Trainee / Junior 🤝
+
+      Esta es una recopilación de búsquedas que me fueron apareciendo en el feed de LinkedIn que considero pueden serles útiles.
+
+      Disclaimer: No conozco las empresas, búsquedas ni a quien las comparte.
+
+      Vamos a lo importante 👇
+      ---
+      🚨 POSICIONES TRAINEE / JR 🚨
+
+      Intentaré todos los Jueves de recopilar búsquedas Trainee / JR que me encuentre por LinkedIn y hacer un hilo acá.
+
+      Disclaimer: No conozco ni las empresas, puestos ni personas que lo comparten.
+
+      Sin más, vamos a las búsquedas 👇
+      ---
+      `,
+    });
+    const {text: outro} = await generateText({
+      model: ollama("llama3"),
+      prompt: `Invite people to share the tweet (absolute max 280 characters) to help others find a job and let them know this thread is made every thursday. Answer should be in ES-ar. Include just the tweet, omit any "Here is the tweet" or reply. Include max 2 emojis. Here are some examples:
+      ---
+      Si te sirvió, voy a hacerlo todos los Jueves. Si primera vez que llegaste acá, comparto contenido sobre frontend, principalmente React y Next.js, hago streams en Twitch los Martes ayudando a gente a conseguir su primer trabajo en IT 🤝
+      ---
+      Ayuda a tu junior de barrio compartiendo así llega a la gente que lo necesita 🤝
+
+      Hasta el Jueves que viene 🙌
+      ---
+      `,
+    });
+
+    tweets.push({body: "", link: "intro", tweet: intro});
+
     for (const link of links) {
       let body: string;
 
@@ -58,6 +95,8 @@ function HomePage() {
         link,
       });
     }
+
+    tweets.push({body: "", link: "outro", tweet: outro});
 
     return tweets;
   }
